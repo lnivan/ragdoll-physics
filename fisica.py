@@ -1,0 +1,134 @@
+import numpy as np
+
+
+
+class Physics_System:
+
+    def __init__(self, gravity=9.81):
+
+        self.points = []
+        self.joints = []
+        self.gravity = gravity
+
+
+    class Point:
+
+        def __init__(self, r, mass, radius, gravity=True):
+
+            #Point properties and variables
+            self.r = r
+            self.v = np.array([0.0, 0.0])
+            self.a = np.array([0.0, 0.0])
+            self.f = np.array([0.0, 0.0])
+
+            self.mass = mass
+            self.radius = radius
+            self.gravity = gravity
+
+        def update(self, dt):
+
+            #Take force and update point variables in a time step
+            self.a = self.f / self.mass
+            self.v = self.v + self.a * dt
+            self.r = self.r + self.v * dt
+            self.f = np.array([0.0, 0.0])
+
+        def add_force(self, force):
+
+            self.f = self.f + force
+
+    def add_point(self, r, mass, width, gravity=True):
+
+        self.points.append(Physics_System.Point(r, mass, width, gravity))
+        return(self.points[-1])
+
+
+    class Spring:
+
+        def __init__(self, point1, point2, rest_length, k):
+
+            self.point1 = point1
+            self.point2 = point2
+            self.rest_length = rest_length
+            self.k = k
+
+        def update(self):
+
+            # Calculate spring force
+            dr = self.point2.r - self.point1.r
+            distance = np.linalg.norm(dr)
+
+            if distance > 0:
+                direction = dr / distance
+                force_magnitude = self.k * (distance - self.rest_length)
+                force = direction * force_magnitude
+
+                # Apply forces to the points
+                self.point1.add_force(force)
+                self.point2.add_force(-force)
+
+
+    class Damper:
+
+        def __init__(self, point1, point2, c):
+
+            self.point1 = point1
+            self.point2 = point2
+            self.c = c
+
+        def update(self):
+
+            # Calculate damping force
+            dv = self.point2.v - self.point1.v
+            dr = self.point2.r - self.point1.r
+            distance = np.linalg.norm(dr)
+
+            if distance > 0:
+                direction = dr / distance
+                relative_velocity = np.dot(dv, direction)
+                damping_force_magnitude = self.c * relative_velocity
+                damping_force = direction * damping_force_magnitude
+
+                # Apply forces to the points
+                self.point1.add_force(damping_force)
+                self.point2.add_force(-damping_force)
+
+    
+    class Spring_Damper_Joint:
+
+        def __init__(self, point1, point2, rest_length, k, c):
+
+            self.spring = Physics_System.Spring(point1, point2, rest_length, k)
+            self.damper = Physics_System.Damper(point1, point2, c)
+
+            self.point1 = point1
+            self.point2 = point2
+            self.rest_length = rest_length
+            self.k = k
+            self.c = c
+
+        def update(self):
+
+            self.spring.update()
+            self.damper.update()
+
+    def add_spring_damper_joint(self, point1, point2, rest_length, k, c):
+
+        self.joints.append(Physics_System.Spring_Damper_Joint(point1, point2, rest_length, k, c))
+        return(self.joints[-1])
+
+
+    def update(self, dt):
+
+        # Apply gravity to points
+        for point in self.points:
+            if point.gravity:
+                point.add_force(np.array([0.0, -point.mass * self.gravity]))
+
+        # Update joints
+        for joint in self.joints:
+            joint.update()
+
+        # Update points
+        for point in self.points:
+            point.update(dt)
