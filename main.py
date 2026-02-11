@@ -47,7 +47,7 @@ Game = Game()
 
 gravity = True
 
-cabeza = Game.add_point(np.array([8, 4]), 4.0, 5, gravity=False)
+cabeza = Game.add_point(np.array([8, 4]), 5.0, 5, gravity=False)
 pecho = Game.add_point(np.array([8, 3.9]), 20.0, 2, gravity=gravity)
 pene = Game.add_point(np.array([8, 3.5]), 20.0, 2, gravity=gravity)
 manod = Game.add_point(np.array([8.3, 3.6]), 5.0, 2, gravity=gravity)
@@ -55,28 +55,28 @@ manoi = Game.add_point(np.array([7.7, 3.6]), 5.0, 2, gravity=gravity)
 pied = Game.add_point(np.array([8.2, 3.1]), 10.0, 2, gravity=gravity)
 piei = Game.add_point(np.array([7.8, 3.1]), 10.0, 2, gravity=gravity)
 
-cuello = Game.add_line(cabeza, pecho, False, 10000, 100)
-torso = Game.add_line(pecho, pene, False, 10000, 100)
-brazod = Game.add_line(pecho, manod, False, 10000, 100)
-brazoi = Game.add_line(pecho, manoi, False, 10000, 100)
-piernad = Game.add_line(pene, pied, False, 10000, 100)
-piernai = Game.add_line(pene, piei, False, 10000, 100)
+cuello = Game.add_line(cabeza, pecho, False, 2000, 50)
+torso = Game.add_line(pecho, pene, False, 2000, 50)
+brazod = Game.add_line(pecho, manod, False, 2000, 50)
+brazoi = Game.add_line(pecho, manoi, False, 2000, 50)
+piernad = Game.add_line(pene, pied, False, 2000, 50)
+piernai = Game.add_line(pene, piei, False, 2000, 50)
 #Soporte
-Game.add_line(manod, manoi, False, 1000, 10, visible=False)
-Game.add_line(pied, piei, False, 1000, 10, visible=False)
-Game.add_line(manod, pied, False, 1000, 10, visible=False)
-Game.add_line(manoi, piei, False, 1000, 10, visible=False)
-Game.add_line(manod, pene, False, 1000, 10, visible=False)
-Game.add_line(manoi, pene, False, 1000, 10, visible=False)
+Game.add_line(manod, manoi, False, 500, 10, visible=False)
+Game.add_line(pied, piei, False, 500, 10, visible=False)
+Game.add_line(manod, pied, False, 500, 10, visible=False)
+Game.add_line(manoi, piei, False, 500, 10, visible=False)
+Game.add_line(manod, pene, False, 500, 10, visible=False)
+Game.add_line(manoi, pene, False, 500, 10, visible=False)
 
-soporte1 = Game.add_point(np.array([8.1, 3.9]), 1, 1, gravity=False, visible=False)
-soporte2 =Game.add_point(np.array([7.9, 3.9]), 1, 1, gravity=False, visible=False)
-Game.add_line(cabeza, soporte1, False, 5000, 100, visible=False)
-Game.add_line(cabeza, soporte2, False, 5000, 100, visible=False)
-Game.add_line(pecho, soporte1, False, 10000, 100, visible=False)
-Game.add_line(pecho, soporte2, False, 10000, 100, visible=False)
-Game.add_line(pene, soporte1, False, 10000, 100, visible=False)
-Game.add_line(pene, soporte2, False, 10000, 100, visible=False)
+soporte1 = Game.add_point(np.array([8.2, 3.9]), 1, 1, gravity=False, visible=False)
+soporte2 =Game.add_point(np.array([7.8, 3.9]), 1, 1, gravity=False, visible=False)
+Game.add_line(cabeza, soporte1, False, 2000, 50, visible=False)
+Game.add_line(cabeza, soporte2, False, 2000, 50, visible=False)
+Game.add_line(pecho, soporte1, False, 2000, 50, visible=False)
+Game.add_line(pecho, soporte2, False, 2000, 50, visible=False)
+Game.add_line(pene, soporte1, False, 2000, 50, visible=False)
+Game.add_line(pene, soporte2, False, 2000, 50, visible=False)
 
 
 
@@ -88,22 +88,42 @@ running = True
 mouse_button_down = False
 while running:
 
+    mouse_rel = np.array(pygame.mouse.get_rel())
+    mouse_vel = mouse_rel / Game.drawer.zoom / 0.025
+    mouse_vel = np.array([mouse_vel[0], -mouse_vel[1]])
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_button_down = True
+            pecho.gravity = False
+            pecho.v = np.array([0.0, 0.0])
         
         if event.type == pygame.MOUSEBUTTONUP:
             mouse_button_down = False
+            pecho.gravity = True
+            pecho.v = mouse_vel
+            cabeza.v = mouse_vel
+            manod.v = mouse_vel
+            manoi.v = mouse_vel
+            pene.v = mouse_vel
+            pied.v = mouse_vel
+            piei.v = mouse_vel
     
     if mouse_button_down:
         mouse_pos = np.array(pygame.mouse.get_pos())
         world_pos_x = mouse_pos[0] / Game.drawer.zoom + Game.drawer.position[0]
         world_pos_y = (Game.drawer.window_size[1] - mouse_pos[1]) / Game.drawer.zoom + Game.drawer.position[1]
-        pecho.r = np.array([world_pos_x, world_pos_y])
-        pecho.v = np.array([0.0, 0.0])
+        dr = np.array([world_pos_x, world_pos_y]) - pecho.r
+        pecho.r = pecho.r + dr
+        cabeza.r = cabeza.r + dr
+        manod.r = manod.r + dr
+        manoi.r = manoi.r + dr
+        pene.r = pene.r + dr
+        pied.r = pied.r + dr
+        piei.r = piei.r + dr
 
     Game.update(0.01)
     Game.draw()

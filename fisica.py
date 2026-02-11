@@ -32,6 +32,7 @@ class Physics_System:
             self.v = self.v + self.a * dt
             self.r = self.r + self.v * dt
             self.f = np.array([0.0, 0.0])
+            self.f = np.array([0.0, 0.0])
 
         def add_force(self, force):
 
@@ -124,6 +125,10 @@ class Physics_System:
         for point in self.points:
             if point.gravity:
                 point.add_force(np.array([0.0, -point.mass * self.gravity]))
+
+        #Apply air friction to points
+        for point in self.points:
+            point.add_force(-1 * point.v)
 
         # Update joints
         for joint in self.joints:
