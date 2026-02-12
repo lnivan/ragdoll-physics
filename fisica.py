@@ -7,7 +7,8 @@ class Physics_System:
     def __init__(self, gravity=9.81):
 
         self.points = []
-        self.joints = []
+        self.spring_damper_joints = []
+        self.fixed_joints = []  
         self.gravity = gravity
 
 
@@ -31,9 +32,15 @@ class Physics_System:
             self.a = self.f / self.mass
             self.v = self.v + self.a * dt
             self.r = self.r + self.v * dt
-            self.f = np.array([0.0, 0.0])
-            self.f = np.array([0.0, 0.0])
 
+            #################################
+            if self.r[1] < 0:
+                self.r[1] = 0
+                self.v[0] = self.v[0] * 0.5
+            #################################
+
+            self.f = np.array([0.0, 0.0])        
+    
         def add_force(self, force):
 
             self.f = self.f + force
@@ -115,8 +122,46 @@ class Physics_System:
 
     def add_spring_damper_joint(self, point1, point2, rest_length, k, c):
 
-        self.joints.append(Physics_System.Spring_Damper_Joint(point1, point2, rest_length, k, c))
-        return(self.joints[-1])
+        self.spring_damper_joints.append(Physics_System.Spring_Damper_Joint(point1, point2, rest_length, k, c))
+        return(self.spring_damper_joints[-1])
+
+
+    class Fixed_Joint:
+
+        def __init__(self, point1, point2, length):
+
+            self.point1 = point1
+            self.point2 = point2
+            self.length = length
+
+        def update(self):
+            
+            dr = self.point2.r - self.point1.r
+            distance = np.linalg.norm(dr)
+
+            if distance > 0:
+                direction = dr / distance
+                '''# Move points to maintain fixed length
+                displacement = self.length - distance
+                self.point1.r = self.point1.r - direction * displacement * self.point2.mass / (self.point1.mass + self.point2.mass)
+                self.point2.r = self.point2.r + direction * displacement * self.point1.mass / (self.point1.mass + self.point2.mass)
+'''
+            #Calculate tension force
+            dv = self.point2.v - self.point1.v
+            t = (np.dot(dv, dv) + np.dot(dr, (self.point2.f/self.point1.mass - self.point1.f/self.point1.mass)))/(self.length*(1/self.point1.mass + 1/self.point2.mass))
+            tension_force = direction * t
+            
+            self.point1.add_force(tension_force)
+            self.point2.add_force(-tension_force)
+
+
+
+
+
+    def add_fixed_joint(self, point1, point2, length):
+
+        self.fixed_joints.append(Physics_System.Fixed_Joint(point1, point2, length))
+        return(self.fixed_joints[-1])
 
 
     def update(self, dt):
@@ -128,10 +173,14 @@ class Physics_System:
 
         #Apply air friction to points
         for point in self.points:
-            point.add_force(-1 * point.v)
+            point.add_force(-0.3 * point.v)
 
-        # Update joints
-        for joint in self.joints:
+        #Update spring-damper joints
+        for joint in self.spring_damper_joints: 
+            joint.update()
+
+        #update fixed joints 
+        for joint in self.fixed_joints: 
             joint.update()
 
         # Update points
