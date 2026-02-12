@@ -18,10 +18,10 @@ class Physics_System:
 
             #Point properties and variables
             self.r = r
+            self.last_r = r
             self.v = np.array([0.0, 0.0])
             self.a = np.array([0.0, 0.0])
             self.f = np.array([0.0, 0.0])
-            self.last_f= np.array([0.0, 0.0])
 
             self.mass = mass
             self.radius = radius
@@ -31,17 +31,22 @@ class Physics_System:
 
             #Take force and update point variables in a time step
             self.a = self.f / self.mass
-            self.v = self.v + self.a * dt
-            self.r = self.r + self.v * dt
+            next_r = 2*self.r - self.last_r + self.a * dt * dt
+
+            self.last_r = self.r
+            self.r = next_r
+
+            self.v = (self.r - self.last_r) / dt
+            self.f = np.array([0.0, 0.0])
 
             #################################
-            if self.r[1] < 0:
+            if next_r[1] < 0:
+                self.last_r[1] = 0
                 self.r[1] = 0
-                self.v[0] = self.v[0] * 0.5
+                self.add_force(np.dot(self.v, np.array([-10.0, 0.0])) * np.array([1.0, 0.0]) * self.mass)
             #################################
 
-            self.last_f = self.f
-            self.f = np.array([0.0, 0.0])        
+
     
         def add_force(self, force):
 
@@ -179,7 +184,7 @@ class Physics_System:
 
         #Apply air friction to points
         for point in self.points:
-            point.add_force(-0.3 * point.v)
+            point.add_force(-0.7 * point.v)
 
         #Update spring-damper joints
         for joint in self.spring_damper_joints: 
