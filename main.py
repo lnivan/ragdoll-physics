@@ -52,7 +52,7 @@ Game = Game()
 
 gravity = True
 
-cabeza = Game.add_point(np.array([8, 4]), 5.0, 5, gravity=False)
+cabeza = Game.add_point(np.array([8, 4]), 5.0, 5, gravity=gravity)
 pecho = Game.add_point(np.array([8, 3.9]), 20.0, 2, gravity=gravity)
 pene = Game.add_point(np.array([8, 3.5]), 20.0, 2, gravity=gravity)
 manod = Game.add_point(np.array([8.3, 3.6]), 5.0, 2, gravity=gravity)
@@ -60,12 +60,12 @@ manoi = Game.add_point(np.array([7.7, 3.6]), 5.0, 2, gravity=gravity)
 pied = Game.add_point(np.array([8.2, 3.1]), 10.0, 2, gravity=gravity)
 piei = Game.add_point(np.array([7.8, 3.1]), 10.0, 2, gravity=gravity)
 
-cuello = Game.add_line("f", cabeza, pecho, None, 100000, 50)
-torso = Game.add_line("f", pecho, pene, None, 100000, 50)
-brazod = Game.add_line("f", pecho, manod, None, 100000, 50)
-brazoi = Game.add_line("f", pecho, manoi, None, 100000, 50)
-piernad = Game.add_line("f", pene, pied, None, 100000, 50)
-piernai = Game.add_line("f", pene, piei, None, 100000, 50)
+cuello = Game.add_line("f", cabeza, pecho, None)
+torso = Game.add_line("f", pecho, pene, None)
+brazod = Game.add_line("f", pecho, manod, None)
+brazoi = Game.add_line("f", pecho, manoi, None)
+piernad = Game.add_line("f", pene, pied, None)
+piernai = Game.add_line("f", pene, piei, None)
 #Soporte
 '''
 Game.add_line(manod, manoi, False, 2000, 10, visible=False)
@@ -120,8 +120,8 @@ while running:
         pecho.r = pecho.r + dr
 
 
-    Game.update(0.01)
+    Game.update(0.002)
     Game.draw()
 
     pygame.display.flip()
-    time.sleep(0.01)
+    time.sleep(0.0024)

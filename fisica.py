@@ -21,6 +21,7 @@ class Physics_System:
             self.v = np.array([0.0, 0.0])
             self.a = np.array([0.0, 0.0])
             self.f = np.array([0.0, 0.0])
+            self.last_f= np.array([0.0, 0.0])
 
             self.mass = mass
             self.radius = radius
@@ -39,6 +40,7 @@ class Physics_System:
                 self.v[0] = self.v[0] * 0.5
             #################################
 
+            self.last_f = self.f
             self.f = np.array([0.0, 0.0])        
     
         def add_force(self, force):
@@ -141,18 +143,22 @@ class Physics_System:
 
             if distance > 0:
                 direction = dr / distance
-                '''# Move points to maintain fixed length
+                # Move points to maintain fixed length
                 displacement = self.length - distance
-                self.point1.r = self.point1.r - direction * displacement * self.point2.mass / (self.point1.mass + self.point2.mass)
-                self.point2.r = self.point2.r + direction * displacement * self.point1.mass / (self.point1.mass + self.point2.mass)
-'''
+                mass_sum = 1/self.point1.mass + 1/self.point2.mass
+                mass_ratio1 = (1/self.point1.mass) / mass_sum
+                mass_ratio2 = (1/self.point2.mass) / mass_sum
+                self.point1.r = self.point1.r - direction * displacement * mass_ratio1
+                self.point2.r = self.point2.r + direction * displacement * mass_ratio2
+
             #Calculate tension force
-            dv = self.point2.v - self.point1.v
-            t = (np.dot(dv, dv) + np.dot(dr, (self.point2.f/self.point1.mass - self.point1.f/self.point1.mass)))/(self.length*(1/self.point1.mass + 1/self.point2.mass))
-            tension_force = direction * t
+            '''dv = self.point2.v - self.point1.v
+            t = (np.dot(dv, dv) + np.dot(dr, (self.point2.last_f/self.point2.mass - self.point1.last_f/self.point1.mass)))/(self.length*(1/self.point1.mass + 1/self.point2.mass))
+            tension_force = direction * round(t, 15)
+            print(t)
             
             self.point1.add_force(tension_force)
-            self.point2.add_force(-tension_force)
+            self.point2.add_force(-tension_force)'''
 
 
 
