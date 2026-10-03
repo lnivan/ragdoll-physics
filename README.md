@@ -8,7 +8,6 @@
 ![Pygame](https://img.shields.io/badge/Pygame-2.x-30363D?style=flat-square)
 ![NumPy](https://img.shields.io/badge/NumPy-30363D?style=flat-square&logo=numpy)
 ![Status](https://img.shields.io/badge/status-working-2DA44E?style=flat-square)
-![Year](https://img.shields.io/badge/year-2026-8250DF?style=flat-square)
 
 <img src="docs/preview.gif" alt="The stick-figure ragdoll is picked up by its chest with the mouse, swung around, tossed, caught again and set back down; the view follows the figure" width="560">
 
@@ -76,10 +75,6 @@ python main.py
 - Each stick is corrected once per step, with no repeated passes, so the sticks are only approximately rigid. In a headless test they stretched by about 10 % on the first landing, and far more while the chest was dragged quickly.
 - On release the code sets the chest's velocity from `pygame.mouse.get_rel()`, but Verlet recomputes it on the next step, so that value only feeds one step of drag and damping.
 - The figure, masses and stiffnesses are hard-coded in `main.py`, which also keeps two alternative bracing setups as commented-out blocks.
-
-## Background
-
-Written on 11–12 February 2026 in a folder called `juego_epico` ("epic game"). The five original commits, all from 12 February, go from a first point-and-spring system to separate spring-damper and fixed joints.
 
 ---
 
