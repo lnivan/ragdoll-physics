@@ -10,7 +10,7 @@
 ![Status](https://img.shields.io/badge/status-working-2DA44E?style=flat-square)
 ![Year](https://img.shields.io/badge/year-2026-8250DF?style=flat-square)
 
-<img src="docs/preview.gif" alt="A stick figure falls and lands, is lifted by its chest with the mouse and flips over, is dropped, then slides right and hops; grey captions name the input" width="560">
+<img src="docs/preview.gif" alt="The stick-figure ragdoll is picked up by its chest with the mouse, swung around, tossed, caught again and set back down; the view follows the figure" width="560">
 
 </div>
 
